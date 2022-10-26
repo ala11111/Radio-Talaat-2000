@@ -44,10 +44,10 @@
                         <field name="annual_increase_ids">
                             <tree editable="bottom">
                                 <field name="name" invisible="1"/>
-                                <field name="date"/>
-                                <field name="percent"/>
-                                <field name="amount"/>
-                                <field name="state" readonly="1" force_save="1"/>
+                                <field name="date" optional="show"/>
+                                <field name="percent" optional="hide"/>
+                                <field name="amount" optional="show"/>
+                                <field name="state" readonly="1" force_save="1" optional="show"/>
                                 <field name="sale_id" invisible="1"/>
                             </tree>
                         </field>

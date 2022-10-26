@@ -32,25 +32,38 @@ class AnnualIncrease(models.Model):
 
     name = fields.Char(string="Name", required=False,related='sale_id.name' )
     date = fields.Date(string="Date", required=True, )
-    percent = fields.Float(string="Percent %", required=False, )
-    amount = fields.Float(string="Amount", required=False, compute='get_amount')
+    percent = fields.Float(string="Percent %", required=False, compute='get_percent')
+    amount = fields.Float(string="Amount", required=False,)
+    # compute='get_amount')
     state = fields.Selection(string="State", selection=[('draft', 'Draft'), ('posted', 'Posted'), ], required=False, )
     sale_id = fields.Many2one(comodel_name="sale.order", string="Sale", required=False, )
 
 
-    @api.depends('percent','sale_id.amount_total')
-    def get_amount(self):
+    # @api.depends('percent','sale_id.amount_total')
+    # def get_amount(self):
+    #     for rec in self:
+    #         # pass
+    #         annual_increase=self.env['annual.increase'].sudo().search([('sale_id','=',rec.sale_id.id),('date','<',rec.date)])
+    #         print('annual_increase',annual_increase)
+    #         amount_annual_increase = sum(annual_increase.mapped('amount'))
+    #         print('amount_annual_increase',amount_annual_increase)
+    #         rec.amount = False
+    #         rec.amount = rec.percent * (rec.sale_id.amount_total + amount_annual_increase) / 100
+
+    @api.depends('amount', 'sale_id.amount_total')
+    def get_percent(self):
         for rec in self:
             # pass
-            annual_increase=self.env['annual.increase'].sudo().search([('sale_id','=',rec.sale_id.id),('date','<',rec.date)])
-            print('annual_increase',annual_increase)
+            annual_increase = self.env['annual.increase'].sudo().search(
+                [('sale_id', '=', rec.sale_id.id), ('date', '<', rec.date)])
+            print('annual_increase', annual_increase)
             amount_annual_increase = sum(annual_increase.mapped('amount'))
-            print('amount_annual_increase',amount_annual_increase)
-            rec.amount = False
-            rec.amount = rec.percent * (rec.sale_id.amount_total + amount_annual_increase) / 100
-
-
-
+            print('amount_annual_increase', amount_annual_increase)
+            rec.percent = False
+            if rec.sale_id.amount_total + amount_annual_increase > 0:
+                rec.percent = (rec.amount / (rec.sale_id.amount_total + amount_annual_increase)) * 100
+            else:
+                rec.percent = False
 
 
 class AccountMove(models.Model):
