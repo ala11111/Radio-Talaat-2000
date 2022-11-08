@@ -3,17 +3,36 @@
     <data>
 
 
-        <record model="ir.cron" id="add_button_sale_journal_entry_view">
-            <field name="name">Sale Journal Entry</field>
-            <field name="interval_number">1</field>
-            <field name="interval_type">days</field>
-            <field name="numbercall">-1</field>
-            <field name="doall" eval="False"/>
-            <field name="model_id" ref="model_sale_order"/>
-            <field name="user_id" ref="base.user_admin"/>
-            <field name="state">code</field>
-            <field name="code">model.button_sale_journal_entry()</field>
+        <!-- Inherit Form View to Modify it -->
+        <record id="product_template_add_annual_increase_id" model="ir.ui.view">
+            <field name="name">product.template.add.annual.increase</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_form_view"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//div[@name='options']" position="inside">
+                    <!-- Add your fields or attributes here -->
+                    <span class="d-inline-block">
+                        <field name="is_annual_increase"/>
+                        <label for="is_annual_increase"/>
+                    </span>
+                </xpath>
+
+            </field>
         </record>
+
+
+<!--        <record model="ir.cron" id="add_button_sale_journal_entry_view">-->
+<!--            <field name="name">Sale Journal Entry</field>-->
+<!--            <field name="interval_number">1</field>-->
+<!--            <field name="interval_type">days</field>-->
+<!--            <field name="numbercall">-1</field>-->
+<!--            <field name="doall" eval="False"/>-->
+<!--            <field name="model_id" ref="model_sale_order"/>-->
+<!--            <field name="user_id" ref="base.user_admin"/>-->
+<!--            <field name="state">code</field>-->
+<!--            <field name="code">model.button_sale_journal_entry()</field>-->
+<!--        </record>-->
 
 
         <!-- Inherit Form View to Modify it -->
@@ -29,7 +48,7 @@
                             type="object"
                             class="oe_stat_button"
                             string="Annual Invoice"
-                            attrs="{'invisible':[('invoice_status','!=','invoiced')]}"
+                            attrs="{'invisible':[('state','not in',['sale','done'])]}"
                             icon="fa-star">
                     </button>
                 </xpath>
@@ -38,15 +57,15 @@
                     <page name="annual_increase" string="Annual Increase">
 
                         <group>
-                            <field name="date_from" attrs="{'readonly':[('invoice_status','=','invoiced')]}"/>
-                            <field name="date_to" attrs="{'readonly':[('invoice_status','=','invoiced')]}"/>
+                            <field name="date_from" attrs="{'readonly':[('invoice_status','in',['sale','done'])]}"/>
+                            <field name="date_to" attrs="{'readonly':[('invoice_status','in',['sale','done'])]}"/>
                         </group>
-                        <field name="annual_increase_ids">
+                        <field name="annual_increase_ids" attrs="{'readonly':[('invoice_status','in',['sale','done'])]}">
                             <tree editable="bottom">
                                 <field name="name" invisible="1"/>
                                 <field name="date" optional="show"/>
-                                <field name="percent" optional="hide"/>
-                                <field name="amount" optional="show"/>
+                                <field name="percent" optional="show"/>
+                                <field name="amount" optional="show" sum="Total"/>
                                 <field name="state" readonly="1" force_save="1" optional="show"/>
                                 <field name="sale_id" invisible="1"/>
                             </tree>

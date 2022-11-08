@@ -6,7 +6,6 @@ from dateutil import relativedelta
 from datetime import date, datetime, time
 from dateutil.relativedelta import relativedelta
 
-# from dateutil.relativedelta import relativedelta
 
 
 
@@ -22,6 +21,10 @@ from dateutil.relativedelta import relativedelta
 #         return res
 
 
+class ProductTemplate(models.Model):
+    _inherit = 'product.template'
+
+    is_annual_increase = fields.Boolean(string="Annual Increase",  )
 
 
 
@@ -32,39 +35,25 @@ class AnnualIncrease(models.Model):
 
     name = fields.Char(string="Name", required=False,related='sale_id.name' )
     date = fields.Date(string="Date", required=True, )
-    percent = fields.Float(string="Percent %", required=False, compute='get_percent')
-    amount = fields.Float(string="Amount", required=False,)
-    # compute='get_amount')
+    percent = fields.Float(string="Percent %", required=False, )
+    amount = fields.Float(string="Amount", required=False, compute='get_amount')
     state = fields.Selection(string="State", selection=[('draft', 'Draft'), ('posted', 'Posted'), ], required=False, )
     sale_id = fields.Many2one(comodel_name="sale.order", string="Sale", required=False, )
 
 
-    # @api.depends('percent','sale_id.amount_total')
-    # def get_amount(self):
-    #     for rec in self:
-    #         # pass
-    #         annual_increase=self.env['annual.increase'].sudo().search([('sale_id','=',rec.sale_id.id),('date','<',rec.date)])
-    #         print('annual_increase',annual_increase)
-    #         amount_annual_increase = sum(annual_increase.mapped('amount'))
-    #         print('amount_annual_increase',amount_annual_increase)
-    #         rec.amount = False
-    #         rec.amount = rec.percent * (rec.sale_id.amount_total + amount_annual_increase) / 100
-
-    @api.depends('amount', 'sale_id.amount_total')
-    def get_percent(self):
+    @api.depends('percent','sale_id.amount_total')
+    def get_amount(self):
         for rec in self:
             # pass
-            annual_increase = self.env['annual.increase'].sudo().search(
-                [('sale_id', '=', rec.sale_id.id), ('date', '<', rec.date)])
-            print('annual_increase', annual_increase)
+            sale_amount=0
+            annual_increase=self.env['annual.increase'].sudo().search([('sale_id','=',rec.sale_id.id),('date','<',rec.date)])
+            print('annual_increase',annual_increase)
             amount_annual_increase = sum(annual_increase.mapped('amount'))
-            print('amount_annual_increase', amount_annual_increase)
-            rec.percent = False
-            if rec.sale_id.amount_total + amount_annual_increase > 0:
-                rec.percent = (rec.amount / (rec.sale_id.amount_total + amount_annual_increase)) * 100
-            else:
-                rec.percent = False
-
+            print('amount_annual_increase',amount_annual_increase)
+            sale_amount = sum(rec.sale_id.order_line.filtered(lambda l: l.product_id.is_annual_increase == True).mapped('price_subtotal'))
+            print('sale_amount',sale_amount)
+            rec.amount = False
+            rec.amount = rec.percent * (sale_amount + amount_annual_increase) / 100
 
 class AccountMove(models.Model):
     _inherit = 'account.move'
@@ -83,6 +72,27 @@ class SaleOrder(models.Model):
 
     date_from = fields.Date(string="Date From", required=False,default=fields.Date.today() )
     date_to = fields.Date(string="Date To", required=False, )
+
+
+    def action_confirm(self):
+        res=super(SaleOrder, self).action_confirm()
+        for rec in self:
+            if rec.annual_increase_ids:
+                invoice = self.env['account.move'].sudo().create({
+                    'move_type': 'out_invoice',
+                    'ref': rec.name,
+                    'date': fields.Date.today(),
+                    'journal_id': self.env['account.journal'].sudo().search([('type','=','sale')],limit=1).id,
+                    'sale_annual_id': rec.id,
+                    'partner_id': rec.partner_id.id,
+                    'invoice_line_ids' : [{
+                    'name': 'annual increase',
+                    'quantity': 1,
+                    'price_unit': sum(rec.annual_increase_ids.mapped('amount'))}],
+                })
+                print('invoice', invoice)
+
+        return res
 
 
 
