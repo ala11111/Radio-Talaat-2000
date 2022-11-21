@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Inherit Form View to Modify it -->
+        <record id="product_template_add_is_service_id" model="ir.ui.view">
+            <field name="name">product.template.add.is_service</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_form_view"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//field[@name='categ_id']" position="after">
+                    <!-- Add your fields or attributes here -->
+                        <field name="is_service"/>
+                </xpath>
+
+            </field>
+        </record>
+
+        <!-- Inherit Form View to Modify it -->
+        <record id="sale_order_add_pay_method_id" model="ir.ui.view">
+            <field name="name">sale.order.add.pay_method</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//field[@name='currency_id']" position="after">
+                    <!-- Add your fields or attributes here -->
+                    <field name="pay_method"/>
+                </xpath>
+
+            </field>
+        </record>
+
+
+
+        <record id="rental_details_tree_id" model="ir.ui.view">
+            <field name="name">rental.details.tree</field>
+            <field name="model">rental.details</field>
+            <field name="arch" type="xml">
+                <tree string="" editable="bottom">
+                    <field name="name" readonly="1"/>
+                    <field name="date" readonly="1"/>
+                    <field name="sale_id" readonly="1"/>
+                    <field name="currency_id" readonly="1"/>
+                    <field name="partner_id" readonly="1"/>
+                    <field name="partner_balance" readonly="1"/>
+                    <field name="product_id" readonly="1"/>
+                    <field name="product_amount" readonly="1"/>
+                    <field name="service" readonly="1"/>
+                    <field name="customer_due"/>
+                    <field name="discount"/>
+                    <field name="discount_reason"/>
+                    <field name="net"/>
+                    <field name="state"/>
+                    <field name="reason"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="rental_details_form_id" model="ir.ui.view">
+            <field name="name">rental.details.form</field>
+            <field name="model">rental.details</field>
+            <field name="arch" type="xml">
+                <form string="">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="date"/>
+                                <field name="sale_id"/>
+                                <field name="currency_id"/>
+                                <field name="partner_id"/>
+                                <field name="partner_balance"/>
+                                <field name="product_id"/>
+                                <field name="product_amount"/>
+                                <field name="service"/>
+                            </group>
+                            <group>
+                                <field name="customer_due"/>
+                                <field name="discount"/>
+                                <field name="discount_reason"/>
+                                <field name="net"/>
+                                <field name="state"/>
+                                <field name="reason"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <record id="rental_details_action_id" model="ir.actions.act_window">
+            <field name="name">تقربر الايجارات</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">rental.details</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    <!-- Add Text Here -->
+                </p>
+                <p>
+                    <!-- More details about what a user can do with this object will be OK -->
+                </p>
+            </field>
+        </record>
+
+        <!-- This Menu Item must have a parent and an action -->
+        <menuitem id="rental_details_menu_id" name="تقربر الايجارات" parent="sale_renting.menu_rental_reporting"
+                  action="rental_details_action_id" sequence="5"/>
+    </data>
+</odoo>
