@@ -28,12 +28,7 @@ class SaleOrder(models.Model):
                     month_increase = 0
                     delta = relativedelta.relativedelta(line.return_date, line.pickup_date)
                     date_month = delta.months + (delta.years * 12)
-                    print('date_month',date_month)
-                    print('date_month',type(date_month))
-                    months=int(date_month / rec.pay_method)
-
-                    print('months',months)
-
+                    months=int(date_month / rec.pay_method) + 1
                     if months > 0:
                         for month in range(0, months):
                             print(True)
