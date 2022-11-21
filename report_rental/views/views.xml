@@ -38,7 +38,7 @@
             <field name="name">rental.details.tree</field>
             <field name="model">rental.details</field>
             <field name="arch" type="xml">
-                <tree string="" editable="bottom">
+                <tree string="" editable="bottom" create="0">
                     <field name="name" readonly="1"/>
                     <field name="date" readonly="1"/>
                     <field name="sale_id" readonly="1"/>
