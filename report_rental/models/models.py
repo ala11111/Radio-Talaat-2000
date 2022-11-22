@@ -16,6 +16,13 @@ class SaleOrder(models.Model):
 
     pay_method = fields.Integer(string="سياسه الدفع", required=False, default=1)
 
+    def action_draft(self):
+        res=super(SaleOrder, self).action_draft()
+        rental_details = self.env['rental.details'].sudo().search([('sale_id','=',self.id)]).sudo().unlink()
+        return res
+
+
+
     def action_confirm(self):
         res = super(SaleOrder, self).action_confirm()
         for rec in self:
@@ -47,7 +54,7 @@ class SaleOrder(models.Model):
                                 'product_amount': line.price_subtotal / months,
                                 'service': service_value if service and date >= service.pickup_date and date <= service.return_date else 0,
                             })
-                            month_increase += 1
+                            month_increase += rec.pay_method
         return res
 
 
@@ -95,7 +102,7 @@ class RentalDetails(models.Model):
     def get_customer_due(self):
         for rec in self:
             rec.customer_due = rec.product_amount + rec.service
-            rec.net = rec.customer_due - rec.discount
+            rec.net = rec.customer_due + rec.discount
 
     @api.onchange('sale_id', 'partner_id', 'product_id', 'date')
     def get_name_rental(self):
