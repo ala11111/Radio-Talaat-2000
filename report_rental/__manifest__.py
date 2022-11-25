@@ -20,12 +20,13 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base','sale_renting','sale'],
+    'depends': ['base','sale_renting','sale','report_xlsx'],
 
     # always loaded
     'data': [
         'security/ir.model.access.csv',
         'views/views.xml',
+        'views/report_customer_due.xml',
         'views/templates.xml',
     ],
     # only loaded in demonstration mode

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="customer_due_wizard_view_form" model="ir.ui.view">
+            <field name="name">customer.due.wizard.view</field>
+            <field name="model">customer.due.wizard</field>
+            <field name="arch" type="xml">
+                <form string="">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="date_from"/>
+                                <field name="date_to"/>
+                            </group>
+                            <group>
+                                <field name="partner_ids" widget="many2many_tags"
+                                       context="{'search_default_customer':1,}">
+                                </field>
+                            </group>
+
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button string="Export Xlsx" name="export_product" type="object" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="customer_due_wizard_view_action" model="ir.actions.act_window">
+            <field name="name">Customer Due Wizard</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">customer.due.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    <!-- Add Text Here -->
+                </p>
+            </field>
+        </record>
+
+        <menuitem id="customer_due_wizard_view_menu" name="أقرب استحقاق"
+                  parent="sale_renting.menu_rental_reporting" action="customer_due_wizard_view_action" sequence="100"/>
+
+        <record id="report_action_id_customer_due" model="ir.actions.report">
+            <field name="name">Custom XLS Report</field>
+            <field name="model">customer.due.wizard</field>
+            <field name="report_type">xlsx</field>
+            <field name="report_name">report_rental.customer_due</field>
+            <field name="report_file">report_rental.customer_due</field>
+            <!--            <field name="print_report_name">'Student Card - %s' % (object.name)</field>-->
+            <field name="binding_model_id" ref="model_customer_due_wizard"/>
+        </record>
+
+    </data>
+</odoo>
