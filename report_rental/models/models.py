@@ -5,6 +5,7 @@ from datetime import date, datetime, time
 from dateutil import relativedelta
 
 
+
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
@@ -104,7 +105,11 @@ class RentalDetails(models.Model):
     def button_send_notify_rental_report_id(self):
         today = fields.Date.today()
         for rec in self.search([('state','!=','yes')]):
-            if rec.date and rec.date == today:
+            print('wwwwwwwwwwwwwwwwww',rec.date)
+            print('qqqqqqqqqqqqqqqqqq',rec.date + relativedelta.relativedelta(days=1))
+            print('today',today)
+            if rec.date and rec.date + relativedelta.relativedelta(days=1) == today:
+                print('ssssssssssssssssssssss')
                 body = '<a target=_BLANK href="/web?#id=' + str(
                     rec.id) + '&view_type=form&model=rental.details&action=" style="font-weight: bold">' + str(
                     rec.name) + '</a>'
@@ -114,8 +119,8 @@ class RentalDetails(models.Model):
                     thread_pool = self.env['mail.thread']
                     thread_pool.sudo().message_notify(
                         partner_ids=partners,
-                        subject="Rental " + str(rec.name) + " need to collection",
-                        body="Message:Rental  " + str(body) + "  need to collection",
+                        subject="Customer "+str(rec.partner_id.name)+" Has Rental " + str(rec.name) + " need to collection in "+ str(rec.date),
+                        body="Message:Customer "+str(rec.partner_id.name)+" Has Rental " + str(body) + " need to collection in "+ str(rec.date),
                         email_from=self.env.user.company_id.email)
     @api.depends('partner_id')
     def git_Previous_customer_balance(self):
