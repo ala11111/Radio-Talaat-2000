@@ -1,6 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
+        <record id="rental_notify_id" model="res.groups">
+            <field name="name">Rental Notify</field>
+
+        </record>
+
+         <record model="ir.cron" id="send_notify_rental_report_id">
+            <field name="name">send notify rental report</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+            <field name="doall" eval="False"/>
+            <field name="model_id" ref="model_rental_details"/>
+            <field name="user_id" ref="base.user_admin"/>
+            <field name="state">code</field>
+            <field name="code">model.button_send_notify_rental_report_id()</field>
+        </record>
 
         <!-- Inherit Form View to Modify it -->
         <record id="product_template_add_is_service_id" model="ir.ui.view">
@@ -12,6 +28,7 @@
                 <xpath expr="//field[@name='categ_id']" position="after">
                     <!-- Add your fields or attributes here -->
                         <field name="is_service"/>
+                        <field name="is_sales_use" invisible="0"/>
                 </xpath>
 
             </field>
@@ -40,7 +57,8 @@
             <field name="arch" type="xml">
                 <tree string="" editable="bottom" create="0">
                     <field name="name" readonly="1"/>
-                    <field name="date" readonly="1"/>
+                    <field name="date" readonly="1" />
+<!--                    widget="remaining_days"/>-->
                     <field name="sale_id" readonly="1"/>
                     <field name="currency_id" readonly="1"/>
                     <field name="partner_id" readonly="1"/>
@@ -109,5 +127,7 @@
         <!-- This Menu Item must have a parent and an action -->
         <menuitem id="rental_details_menu_id" name="تقربر الايجارات" parent="sale_renting.menu_rental_reporting"
                   action="rental_details_action_id" sequence="5"/>
+
+
     </data>
 </odoo>

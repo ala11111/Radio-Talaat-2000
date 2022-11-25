@@ -10,6 +10,23 @@ class ProductTemplate(models.Model):
 
     is_service = fields.Boolean(string="Is Service", )
 
+    is_sales_use = fields.Boolean(string="Sales Use",compute='get_is_sales_use' ,store=True )
+    is_sales = fields.Boolean(string="",  )
+
+
+
+    @api.depends('name')
+    def get_is_sales_use(self):
+        for rec in self:
+            sales_line=self.env['sale.order.line'].sudo().search([('product_id','=',rec.product_variant_id.id),('order_id.state','in',['sale','done'])])
+            if sales_line :
+                rec.is_sales_use = True
+            else:
+                rec.is_sales_use = False
+
+
+
+
 
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
@@ -35,6 +52,7 @@ class SaleOrder(models.Model):
                 service_value=service.price_subtotal / months_service
                 print('service_value',service_value)
             for line in rec.order_line:
+                line.product_id.is_sales_use = True
                 if not line.product_id.is_service and line.product_id.rent_ok:
                     date_month = 0
                     months = 0
@@ -83,6 +101,22 @@ class RentalDetails(models.Model):
                              required=False, )
     reason = fields.Text(string="السبب", required=False, )
 
+    def button_send_notify_rental_report_id(self):
+        today = fields.Date.today()
+        for rec in self.search([('state','!=','yes')]):
+            if rec.date and rec.date == today:
+                body = '<a target=_BLANK href="/web?#id=' + str(
+                    rec.id) + '&view_type=form&model=rental.details&action=" style="font-weight: bold">' + str(
+                    rec.name) + '</a>'
+                partners = [x.partner_id.id for x in self.env.ref('report_rental.rental_notify_id').users]
+                # partners = [rec.project_id.user_id.partner_id.id]
+                if partners:
+                    thread_pool = self.env['mail.thread']
+                    thread_pool.sudo().message_notify(
+                        partner_ids=partners,
+                        subject="Rental " + str(rec.name) + " need to collection",
+                        body="Message:Rental  " + str(body) + "  need to collection",
+                        email_from=self.env.user.company_id.email)
     @api.depends('partner_id')
     def git_Previous_customer_balance(self):
         for rec in self:
