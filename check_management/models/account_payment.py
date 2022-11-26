@@ -4,7 +4,6 @@ from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError, UserError
 
 
-
 class AccountPayment(models.Model):
     _inherit = "account.payment"
 
@@ -15,6 +14,20 @@ class AccountPayment(models.Model):
                                       default=0.0)
     existing_check_lines = fields.Many2many('payment.check.line')
     exist_check = fields.Boolean(string='From Existing Checks', default=False)
+
+    invoices_partners_ids = fields.Many2many(comodel_name="account.move", string="Invoices Partner", )
+
+    @api.onchange('partner_id')
+    def get_invoices_partners_ids(self):
+        for rec in self:
+            invoices = self.env['account.move'].sudo().search(
+                [('partner_id', '=', rec.partner_id.id), ('move_type', 'in', ['in_invoice', 'out_invoice']),
+                 ('state', '=', 'posted'),
+                 ('payment_state', 'in', ['not_paid', 'partial'])])
+            print('invoices',invoices)
+            for invoice in invoices:
+                print('invoice.payment_state',invoice.payment_state)
+            rec.invoices_partners_ids = invoices.ids
 
     @api.depends('payment_check_lines.check_amount', 'payment_check_lines')
     def compute_total_check_amount(self):
@@ -33,10 +46,9 @@ class AccountPayment(models.Model):
             else:
                 rec.write({'total_check_amount': 0.0})
 
-
     # @api.multi
     def action_post(self):
-        res=super(AccountPayment, self).action_post()
+        res = super(AccountPayment, self).action_post()
         for rec in self:
             if rec.payment_check_lines:
                 rec.amount = rec.total_check_amount
@@ -92,4 +104,3 @@ class AccountPayment(models.Model):
             self.exist_check = True
         else:
             self.exist_check = False
-

@@ -58,6 +58,7 @@
                     <field name="total_check_amount" attrs="{'invisible': [('is_check_journal','=', False)]}"/>
                 </xpath>
 
+
                 <xpath expr="//div[@name='amount_div']" position="attributes">
                     <attribute name="attrs">{'readonly': [('state', '!=', 'draft')],'invisible':[('is_check_journal',
                         '=', True)]}
@@ -109,6 +110,9 @@
                                     <field name="desc"/>
                                 </tree>
                             </field>
+                        </page>
+                        <page name="invoice_partner" string="Invoices Partner">
+                            <field name="invoices_partners_ids" invisible="0" readonly="1" force_save="1"/>
                         </page>
                         <!--                        page for existing checks-->
                         <!--                        <page string="Existing Check Lines" attrs="{'invisible': [('exist_check','=',False)]}">-->
