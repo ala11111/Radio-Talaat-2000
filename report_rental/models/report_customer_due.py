@@ -57,9 +57,12 @@ class customer_due(models.AbstractModel):
                     rental = self.env['rental.details'].sudo().search(
                         [('partner_id', '=', partner.id), ('state', '!=', 'yes'), ('date', '>=', obj.date_from),
                          ('date', '<=', obj.date_to)], order="date",limit=1)
-                    print('rental',rental)
+
                     if rental:
-                        sheet.write(row, 1,rental.net , format2)
+                        rental_plus = self.env['rental.details'].sudo().search(
+                            [('partner_id', '=', partner.id), ('state', '!=', 'yes'), ('date', '=', rental.date)])
+
+                        sheet.write(row, 1,sum(rental_plus.mapped('net')) , format2)
                         # sheet.set_column(row, 1, 30)
                         # sheet.set_row(row, 20)
                         sheet.write(row, 2, str(rental.date), format2)
