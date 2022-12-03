@@ -48,8 +48,8 @@ class SaleOrder(models.Model):
             service = rec.order_line.filtered(lambda l: l.product_id.is_service == True)
             if service:
                 print('service',service)
-                months_service = int(relativedelta.relativedelta(service.return_date, service.pickup_date).months + (
-                            (relativedelta.relativedelta(service.return_date, service.pickup_date).years) * 12)) + 1
+                months_service = int((relativedelta.relativedelta(service.return_date, service.pickup_date).months + (
+                            (relativedelta.relativedelta(service.return_date, service.pickup_date).years) * 12))/ rec.pay_method) + 1
                 service_value=service.price_subtotal / months_service
                 print('service_value',service_value)
             for line in rec.order_line:
