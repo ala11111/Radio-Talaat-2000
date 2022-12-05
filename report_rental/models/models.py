@@ -4,6 +4,13 @@ from odoo import models, fields, api
 from datetime import date, datetime, time
 from dateutil import relativedelta
 
+class apartment_state(models.Model):
+    _name = 'apartment.state'
+    _rec_name = 'name'
+    _description = 'New Description'
+
+    name = fields.Char()
+
 
 
 class ProductTemplate(models.Model):
@@ -13,6 +20,19 @@ class ProductTemplate(models.Model):
 
     is_sales_use = fields.Boolean(string="Sales Use",compute='get_is_sales_use' ,store=True )
     is_sales = fields.Boolean(string="",  )
+    new_field_ids = fields.Many2many(comodel_name="", relation="", column1="", column2="", string="", )
+    partner_ids = fields.Many2many('res.partner',relation="partner_ids", string='Owners', domain=[('customer_rank', '>', 0)])
+    sales_person_ids = fields.Many2many('res.partner',relation="sales_person_ids", string='Sale Persons')
+    tax_position = fields.Selection(string="Tax Position", selection=[('registered', 'Registered'), ('unregistered', 'Unregistered'),('under_registration', 'Under Registration'), ], required=False, )
+    land_space = fields.Float(string="Land Space",  required=False, )
+    real_estate_space = fields.Float(string="Real Estate Space",  required=False, )
+    number_of_floors = fields.Float(string="Number of Floors",  required=False, )
+    apartment_description = fields.Text(string="Apartment Description", required=False, )
+    apartment_state_id = fields.Many2one(comodel_name="apartment.state", string="Apartment State", required=False, )
+    analytic_account_id = fields.Many2one(comodel_name="account.analytic.account", string="Analytic Account", required=False, )
+    analytic_tag_ids = fields.Many2many(
+        comodel_name="account.analytic.tag", string="analytic tags"
+    )
 
 
 
@@ -29,10 +49,32 @@ class ProductTemplate(models.Model):
 
 
 
+class SaleOrderLine(models.Model):
+    _inherit = 'sale.order.line'
+
+    @api.depends('product_id', 'order_id.date_order', 'order_id.partner_id')
+    def _compute_analytic_tag_ids(self):
+        for line in self:
+            # if not line.display_type and line.state == 'draft':
+            #     default_analytic_account = line.env['account.analytic.default'].sudo().account_get(
+            #         product_id=line.product_id.id,
+            #         partner_id=line.order_id.partner_id.id,
+            #         user_id=self.env.uid,
+            #         date=line.order_id.date_order,
+            #         company_id=line.company_id.id,
+            #     )
+            #     line.analytic_tag_ids = default_analytic_account.analytic_tag_ids
+            line.analytic_tag_ids = line.product_id.analytic_tag_ids.ids
+
+
+
+
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
-    pay_method = fields.Integer(string="سياسه الدفع", required=False, default=1)
+    pay_method = fields.Integer(string="Payment Terms", required=False, default=1)
+    payment_method_select = fields.Selection(string="Payment Method", selection=[('cash', 'Cash'), ('check', 'Check'),('bank_transfer', 'Bank Transfer'), ], required=False, )
+    lessor_ids = fields.Many2many2one(comodel_name="res.partner", string="Lessors", required=False, )
 
     def action_draft(self):
         res=super(SaleOrder, self).action_draft()
@@ -84,31 +126,28 @@ class RentalDetails(models.Model):
 
     name = fields.Char(string="Name", required=False, )
     date = fields.Date(string="تاريخ الاستحقاق", required=False, )
-    sale_id = fields.Many2one(comodel_name="sale.order", string="أمر البيغ", required=False, )
-    currency_id = fields.Many2one(comodel_name="res.currency", string="العمله", required=False,
+    sale_id = fields.Many2one(comodel_name="sale.order", string="Sale Order", required=False, )
+    currency_id = fields.Many2one(comodel_name="res.currency", string="Currency", required=False,
                                   related='sale_id.currency_id', store=True)
-    partner_id = fields.Many2one(comodel_name="res.partner", string="العميل", required=False,
+    partner_id = fields.Many2one(comodel_name="res.partner", string="renter", required=False,
                                  related='sale_id.partner_id', store=True)
-    partner_balance = fields.Float(string="رصيد العميل", required=False, compute='git_Previous_customer_balance')
-    product_id = fields.Many2one(comodel_name="product.product", string="المنتج", required=False, )
-    product_amount = fields.Float(string="قيمه الايجار", required=False, )
-    service = fields.Float(string="الصيانه", required=False, )
-    customer_due = fields.Float(string="اجمالي المستحق المستحق علي العميل", required=False, compute='get_customer_due',
+    partner_balance = fields.Float(string="renter Balance", required=False, compute='git_Previous_customer_balance')
+    product_id = fields.Many2one(comodel_name="product.product", string="Item", required=False, )
+    product_amount = fields.Float(string="Rent Value", required=False, )
+    service = fields.Float(string="Service", required=False, )
+    customer_due = fields.Float(string="renter Due", required=False, compute='get_customer_due',
                                 store=True)
-    discount = fields.Float(string="تخفيض / علاوه", required=False, )
-    discount_reason = fields.Text(string="سبب العلاوه/التخفيض", required=False, )
-    net = fields.Float(string="الصافي", required=False, compute='get_customer_due', store=True)
-    state = fields.Selection(string="حاله التحصيل", selection=[('yes', 'نعم'), ('no', 'لا'), ('partial', 'جزئي')],
+    discount = fields.Float(string="Discount", required=False, )
+    discount_reason = fields.Text(string="Discount Reason", required=False, )
+    net = fields.Float(string="Net", required=False, compute='get_customer_due', store=True)
+    state = fields.Selection(string="Collection State", selection=[('yes', 'Yes'), ('no', 'No'), ('partial', 'Partial')],
                              required=False, )
-    reason = fields.Text(string="السبب", required=False, )
+    reason = fields.Text(string="Reason", required=False, )
 
     def button_send_notify_rental_report_id(self):
         today = fields.Date.today()
         for rec in self.search([('state','!=','yes')]):
-            print('wwwwwwwwwwwwwwwwww',rec.date)
-            print('qqqqqqqqqqqqqqqqqq',rec.date + relativedelta.relativedelta(days=1))
-            print('today',today)
-            if rec.date and rec.date + relativedelta.relativedelta(days=1) == today:
+            if rec.date and  today + relativedelta.relativedelta(days=2) == rec.date or today == rec.date or today >= rec.date:
                 print('ssssssssssssssssssssss')
                 body = '<a target=_BLANK href="/web?#id=' + str(
                     rec.id) + '&view_type=form&model=rental.details&action=" style="font-weight: bold">' + str(

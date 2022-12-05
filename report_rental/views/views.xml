@@ -6,7 +6,7 @@
 
         </record>
 
-         <record model="ir.cron" id="send_notify_rental_report_id">
+        <record model="ir.cron" id="send_notify_rental_report_id">
             <field name="name">send notify rental report</field>
             <field name="interval_number">1</field>
             <field name="interval_type">days</field>
@@ -24,11 +24,49 @@
             <field name="model">product.template</field>
             <field name="inherit_id" ref="product.product_template_form_view"/>
             <field name="arch" type="xml">
+                <xpath expr="//notebook" position="inside">
+                    <!-- Add your fields or attributes here -->
+                    <page name="description" string="Description">
+                        <group>
+                            <field name="partner_ids" widget="many2many_tags"/>
+                            <field name="sales_person_ids" widget="many2many_tags"/>
+                            <field name="tax_position"/>
+                            <field name="land_space"/>
+                            <field name="real_estate_space"/>
+                            <field name="number_of_floors"/>
+                            <field name="apartment_description"/>
+                            <field name="apartment_state_id"/>
+
+                        </group>
+                    </page>
+                </xpath>
 
                 <xpath expr="//field[@name='categ_id']" position="after">
                     <!-- Add your fields or attributes here -->
-                        <field name="is_service"/>
-                        <field name="is_sales_use" invisible="0"/>
+                    <field name="is_service"/>
+                    <field name="is_sales_use" invisible="0"/>
+
+                </xpath>
+
+            </field>
+        </record>
+
+        <!-- Inherit Form View to Modify it -->
+        <record id="product_template_add_account_is_service_id" model="ir.ui.view">
+            <field name="name">product.template.account.is_service</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="account.product_template_form_view"/>
+            <field name="arch" type="xml">
+
+
+                <xpath expr="//group[@name='accounting']" position="after">
+                    <!-- Add your fields or attributes here -->
+                    <group>
+                        <field name="analytic_account_id"/>
+                        <field name="analytic_tag_ids" widget="many2many_tags"/>
+                    </group>
+
+
                 </xpath>
 
             </field>
@@ -44,11 +82,27 @@
                 <xpath expr="//field[@name='currency_id']" position="after">
                     <!-- Add your fields or attributes here -->
                     <field name="pay_method"/>
+                    <field name="payment_method_select"/>
+                </xpath>
+                <xpath expr="//field[@name='validity_date']" position="after">
+                    <!-- Add your fields or attributes here -->
+                    <field name="lessor_ids" widget="many2many_tags"/>
+                </xpath>
+                <xpath expr="//field[@name='partner_id']" position="attributes">
+                    <attribute name="string">Owner</attribute>
+                </xpath>
+                <xpath expr="//field[@name='validity_date']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='partner_invoice_id']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='partner_shipping_id']" position="attributes">
+                    <attribute name="invisible">1</attribute>
                 </xpath>
 
             </field>
         </record>
-
 
 
         <record id="rental_details_tree_id" model="ir.ui.view">
@@ -57,8 +111,8 @@
             <field name="arch" type="xml">
                 <tree string="" editable="bottom" create="0">
                     <field name="name" readonly="1"/>
-                    <field name="date" readonly="1" />
-<!--                    widget="remaining_days"/>-->
+                    <field name="date" readonly="1"/>
+                    <!--                    widget="remaining_days"/>-->
                     <field name="sale_id" readonly="1"/>
                     <field name="currency_id" readonly="1"/>
                     <field name="partner_id" readonly="1"/>
@@ -125,8 +179,25 @@
         </record>
 
         <!-- This Menu Item must have a parent and an action -->
-        <menuitem id="rental_details_menu_id" name="تقربر الايجارات" parent="sale_renting.menu_rental_reporting"
+        <menuitem id="rental_details_menu_id" name="Rental Report" parent="sale_renting.menu_rental_reporting"
                   action="rental_details_action_id" sequence="5"/>
+
+
+        <record id="sale.product_template_action" model="ir.actions.act_window">
+            <field name="name">Items</field>
+        </record>
+        <record id="sale_renting.rental_product_template_action" model="ir.actions.act_window">
+            <field name="name">Items</field>
+        </record>
+        <record id="sale.product_menu_catalog" model="ir.ui.menu">
+            <field name="name">Items</field>
+        </record>
+        <record id="sale.menu_product_template_action" model="ir.ui.menu">
+            <field name="name">Items</field>
+        </record>
+        <record id="sale_renting.menu_rental_products" model="ir.ui.menu">
+            <field name="name">Items</field>
+        </record>
 
 
     </data>
