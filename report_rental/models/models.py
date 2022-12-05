@@ -74,7 +74,7 @@ class SaleOrder(models.Model):
 
     pay_method = fields.Integer(string="Payment Terms", required=False, default=1)
     payment_method_select = fields.Selection(string="Payment Method", selection=[('cash', 'Cash'), ('check', 'Check'),('bank_transfer', 'Bank Transfer'), ], required=False, )
-    lessor_ids = fields.Many2many2one(comodel_name="res.partner", string="Lessors", required=False, )
+    lessor_ids = fields.Many2many(comodel_name="res.partner", string="Lessors", required=False, )
 
     def action_draft(self):
         res=super(SaleOrder, self).action_draft()
