@@ -20,7 +20,8 @@ class ProductTemplate(models.Model):
 
     is_sales_use = fields.Boolean(string="Sales Use",compute='get_is_sales_use' ,store=True )
     is_sales = fields.Boolean(string="",  )
-    new_field_ids = fields.Many2many(comodel_name="", relation="", column1="", column2="", string="", )
+    owner = fields.Char(string="Owner", required=False, )
+    collection_officer = fields.Char(string="Collection Officer", required=False, )
     partner_ids = fields.Many2many('res.partner',relation="partner_ids", string='Owners', domain=[('customer_rank', '>', 0)])
     sales_person_ids = fields.Many2many('res.partner',relation="sales_person_ids", string='Sale Persons')
     tax_position = fields.Selection(string="Tax Position", selection=[('registered', 'Registered'), ('unregistered', 'Unregistered'),('under_registration', 'Under Registration'), ], required=False, )
@@ -52,6 +53,11 @@ class ProductTemplate(models.Model):
 class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
 
+    def _prepare_invoice_line(self, **optional_values):
+        invoice_line = super(SaleOrderLine, self)._prepare_invoice_line(**optional_values)
+        invoice_line['analytic_account_id'] = self.product_id.analytic_account_id.id
+        return invoice_line
+
     @api.depends('product_id', 'order_id.date_order', 'order_id.partner_id')
     def _compute_analytic_tag_ids(self):
         for line in self:
@@ -69,12 +75,16 @@ class SaleOrderLine(models.Model):
 
 
 
+
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
     pay_method = fields.Integer(string="Payment Terms", required=False, default=1)
     payment_method_select = fields.Selection(string="Payment Method", selection=[('cash', 'Cash'), ('check', 'Check'),('bank_transfer', 'Bank Transfer'), ], required=False, )
-    lessor_ids = fields.Many2many(comodel_name="res.partner", string="Lessors", required=False, )
+    lessor_ids = fields.Many2many(comodel_name="res.partner", string="Owner", required=False, )
+    owner = fields.Char(string="Owner", required=False, )
+    start_date = fields.Date(string="Start Date", required=False, )
+    end_date = fields.Date(string="End Date", required=False, )
 
     def action_draft(self):
         res=super(SaleOrder, self).action_draft()
