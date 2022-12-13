@@ -28,8 +28,8 @@
                     <!-- Add your fields or attributes here -->
                     <page name="description" string="Description">
                         <group>
-                            <field name="owner"/>
-                            <field name="partner_ids" widget="many2many_tags" invisible="1"/>
+                            <field name="owner" invisible="1"/>
+                            <field name="partner_ids" widget="many2many_tags" invisible="0"/>
                             <field name="sales_person_ids" widget="many2many_tags" invisible="1"/>
                             <field name="collection_officer"/>
                             <field name="tax_position"/>
@@ -37,7 +37,21 @@
                             <field name="real_estate_space"/>
                             <field name="number_of_floors"/>
                             <field name="apartment_description"/>
-                            <field name="apartment_state_id"/>
+                            <field name="apartment_state_id" widget="many2many_tags"/>
+
+                        </group>
+                    </page>
+                    <page name="utility" string="Utility">
+                        <group>
+                            <field name="unit_phone" />
+                            <field name="unit_net" />
+                            <field name="gas_meter_number" />
+                            <field name="payment_code_gas" />
+                            <field name="water_meter_number" />
+                            <field name="payment_code_water" />
+                            <field name="electricity_meter_number" />
+                            <field name="payment_code_electricity" />
+
 
                         </group>
                     </page>
@@ -46,7 +60,8 @@
                 <xpath expr="//field[@name='categ_id']" position="after">
                     <!-- Add your fields or attributes here -->
                     <field name="is_service"/>
-                    <field name="is_sales_use" invisible="0"/>
+                    <field name="is_insurance"/>
+                    <field name="is_sales_use" invisible="1"/>
 
                 </xpath>
 
@@ -82,15 +97,17 @@
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='partner_id']" position="after">
                     <!-- Add your fields or attributes here -->
+                    <field name="lessor_ids" widget="many2many_tags" invisible="0"/>
+                    <field name="owner" invisible="1"/>
                     <field name="start_date"/>
                     <field name="end_date"/>
                 </xpath>
                 <xpath expr="//field[@name='order_line']/tree/field[@name='product_id']" position="attributes">
-                    <attribute name="string">Item</attribute>
+                    <attribute name="string">Unit</attribute>
                 </xpath>
                 <xpath expr="//field[@name='order_line']/tree/control" position="replace">
                     <control>
-                        <create name="add_product_control" string="Add a Item"/>
+                        <create name="add_product_control" string="Add a Unit"/>
                         <create name="add_section_control" string="Add a section"
                                 context="{'default_display_type': 'line_section'}"/>
                         <create name="add_note_control" string="Add a note"
@@ -101,15 +118,19 @@
                 <xpath expr="//field[@name='currency_id']" position="after">
                     <!-- Add your fields or attributes here -->
                     <field name="pay_method"/>
+                    <field name="unit_state"/>
                     <field name="payment_method_select"/>
+                </xpath>
+                <xpath expr="//field[@name='payment_term_id']" position="attributes">
+                    <attribute name="invisible">1</attribute>
                 </xpath>
                 <xpath expr="//field[@name='validity_date']" position="after">
                     <!-- Add your fields or attributes here -->
-                    <field name="lessor_ids" widget="many2many_tags" invisible="1"/>
-                    <field name="owner"/>
+                    <field name="lessors_id"/>
+
                 </xpath>
                 <xpath expr="//field[@name='partner_id']" position="attributes">
-                    <attribute name="string">Renter</attribute>
+                    <attribute name="string">Tenant</attribute>
                 </xpath>
                 <xpath expr="//field[@name='validity_date']" position="attributes">
                     <attribute name="invisible">1</attribute>
@@ -138,12 +159,16 @@
                     <field name="partner_id" readonly="1"/>
                     <field name="partner_balance" readonly="1"/>
                     <field name="product_id" readonly="1"/>
-                    <field name="product_amount" readonly="1"/>
-                    <field name="service" readonly="1"/>
-                    <field name="customer_due"/>
-                    <field name="discount"/>
+                    <field name="product_amount" readonly="1" sum="product_amount"/>
+                    <field name="tax" readonly="1" sum="tax"/>
+                    <field name="service" readonly="1" sum="service"/>
+                    <field name="customer_due" sum="customer_due"/>
+                    <field name="insurance" sum="insurance"/>
+                    <field name="discount" sum="discount"/>
                     <field name="discount_reason"/>
-                    <field name="net"/>
+                    <field name="net" sum="net"/>
+                    <field name="currency_id" invisible="0"/>
+                    <field name="net_local_currency" sum="net"/>
                     <field name="state"/>
                     <field name="reason"/>
                 </tree>
@@ -204,22 +229,22 @@
 
 
         <record id="sale.product_template_action" model="ir.actions.act_window">
-            <field name="name">Items</field>
+            <field name="name">Units</field>
         </record>
         <record id="sale_renting.rental_product_template_action" model="ir.actions.act_window">
-            <field name="name">Items</field>
+            <field name="name">Units</field>
         </record>
         <record id="sale.product_menu_catalog" model="ir.ui.menu">
-            <field name="name">Items</field>
+            <field name="name">Units</field>
         </record>
         <record id="sale.menu_product_template_action" model="ir.ui.menu">
-            <field name="name">Items</field>
+            <field name="name">Units</field>
         </record>
         <record id="sale_renting.menu_rental_products" model="ir.ui.menu">
-            <field name="name">Items</field>
+            <field name="name">Units</field>
         </record>
         <record id="sale_renting.menu_orders_customers" model="ir.ui.menu">
-            <field name="name">Renters</field>
+            <field name="name">Tenants</field>
         </record>
 
 
