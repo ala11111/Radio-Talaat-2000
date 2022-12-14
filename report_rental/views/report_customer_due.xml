@@ -41,7 +41,7 @@
             </field>
         </record>
 
-        <menuitem id="customer_due_wizard_view_menu" name="أقرب استحقاق"
+        <menuitem id="customer_due_wizard_view_menu" name="Renter Due"
                   parent="sale_renting.menu_rental_reporting" action="customer_due_wizard_view_action" sequence="100"/>
 
         <record id="report_action_id_customer_due" model="ir.actions.report">

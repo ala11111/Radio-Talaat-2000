@@ -12,6 +12,7 @@ class CustomerDueWizard(models.TransientModel):
     date_to = fields.Date(string="Date To", required=False, )
     partner_ids = fields.Many2many('res.partner', string='customer', domain=[('customer_rank', '>', 0)])
 
+
     def export_product(self):
         for rec in self:
             if not rec.partner_ids:
@@ -51,7 +52,7 @@ class customer_due(models.AbstractModel):
                 sheet.set_row(row, 20)
                 sheet.write(row, 2, 'اقرب استحقاق', format3)
                 sheet.write(row, 3, 'رقم امر البيع', format3)
-                sheet.write(row, 4, 'اسم العميل ', format3)
+                sheet.write(row, 4, 'اسم المستأجر ', format3)
                 row+=1
                 for partner in obj.partner_ids:
                     rental = self.env['rental.details'].sudo().search(
