@@ -189,7 +189,7 @@ class RentalDetails(models.Model):
             if rec.net and rec.currency_id and not rec.currency_id.is_current_company_currency :
                 date=max(rec.currency_id.rate_ids.mapped('name'))
                 print('xate',date)
-                rate_line=rec.currency_id.rate_ids.filetered(lambda l:l.name == date)
+                rate_line=rec.currency_id.rate_ids.filtered(lambda l:l.name == date)
                 if rate_line:
                     rate=rate_line[0].company_rate
                 rec.net_local_currency = rec.net * rate
