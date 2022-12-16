@@ -96,6 +96,7 @@ class SaleOrder(models.Model):
     owner = fields.Char(string="Owner", required=False, )
     start_date = fields.Date(string="Start Date", required=False, )
     end_date = fields.Date(string="End Date", required=False, )
+    is_complete_insurance = fields.Boolean()
 
     def action_draft(self):
         res=super(SaleOrder, self).action_draft()
@@ -145,9 +146,11 @@ class SaleOrder(models.Model):
                                 'tax':(units_tax+(service_tax if service and date >= service.pickup_date and date <= service.return_date else 0)),
                                 'product_id': line.product_id.id,
                                 'product_amount': line.price_subtotal / months,
-                                'insurance': insurance_line[0].price_subtotal if insurance_line and month == 0 else 0,
+                                'insurance': insurance_line[0].price_subtotal if insurance_line and not rec.is_complete_insurance and month == 0 else 0,
                                 'service': service_value if service and date >= service.pickup_date and date <= service.return_date else 0,
                             })
+                            if rental_details.insurance > 0 :
+                                rec.is_complete_insurance =True
                             month_increase += rec.pay_method
         return res
 
@@ -191,7 +194,7 @@ class RentalDetails(models.Model):
                 print('xate',date)
                 rate_line=rec.currency_id.rate_ids.filtered(lambda l:l.name == date)
                 if rate_line:
-                    rate=rate_line[0].company_rate
+                    rate=rate_line[0].inverse_company_rate
                 rec.net_local_currency = rec.net * rate
 
             else:
