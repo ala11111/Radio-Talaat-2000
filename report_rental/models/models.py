@@ -97,6 +97,7 @@ class SaleOrder(models.Model):
     start_date = fields.Date(string="Start Date", required=False, )
     end_date = fields.Date(string="End Date", required=False, )
     is_complete_insurance = fields.Boolean()
+    exchange_id = fields.Many2one(comodel_name="sale.order", string="Exchange", required=False, copy=False)
 
     def action_draft(self):
         res=super(SaleOrder, self).action_draft()
@@ -153,6 +154,22 @@ class SaleOrder(models.Model):
                                 rec.is_complete_insurance =True
                             month_increase += rec.pay_method
         return res
+
+
+    def get_sales_exchange(self):
+        for rec in self:
+            return {
+                'name': 'Sales',
+                'view_type': 'form',
+                'view_mode': 'tree,form',
+                'res_model': 'sale.order',
+                'view_id': False,
+                'type': 'ir.actions.act_window',
+                'domain': [('exchange_id', '=', self.id)],
+                'context': {
+                    'default_exchange_id': self.id,
+                },
+            }
 
 
 class RentalDetails(models.Model):

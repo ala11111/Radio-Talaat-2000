@@ -141,6 +141,16 @@
                 <xpath expr="//field[@name='partner_shipping_id']" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
+                <xpath expr="//div[@name='button_box']" position="inside">
+                    <!-- Add your fields or attributes here -->
+                    <field name="exchange_id" invisible="1"/>
+                    <button name="get_sales_exchange"
+                            type="object"
+                            class="oe_stat_button"
+                            string="Sub Sales Order"
+                            icon="fa-bars">
+                    </button>
+                </xpath>
 
             </field>
         </record>
