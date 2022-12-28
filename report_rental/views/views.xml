@@ -43,14 +43,14 @@
                     </page>
                     <page name="utility" string="Utility">
                         <group>
-                            <field name="unit_phone" />
-                            <field name="unit_net" />
-                            <field name="gas_meter_number" />
-                            <field name="payment_code_gas" />
-                            <field name="water_meter_number" />
-                            <field name="payment_code_water" />
-                            <field name="electricity_meter_number" />
-                            <field name="payment_code_electricity" />
+                            <field name="unit_phone"/>
+                            <field name="unit_net"/>
+                            <field name="gas_meter_number"/>
+                            <field name="payment_code_gas"/>
+                            <field name="water_meter_number"/>
+                            <field name="payment_code_water"/>
+                            <field name="electricity_meter_number"/>
+                            <field name="payment_code_electricity"/>
 
 
                         </group>
@@ -141,15 +141,20 @@
                 <xpath expr="//field[@name='partner_shipping_id']" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
-                <xpath expr="//div[@name='button_box']" position="inside">
+
+                <xpath expr="//button[@name='action_view_invoice']" position="before">
                     <!-- Add your fields or attributes here -->
                     <field name="exchange_id" invisible="1"/>
-                    <button name="get_sales_exchange"
-                            type="object"
-                            class="oe_stat_button"
-                            string="Sub Sales Order"
-                            icon="fa-bars">
-                    </button>
+                        <button name="get_sales_exchange"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-bars"
+                        >
+                            <field name="sub_rental" widget="statinfo" />
+
+
+
+                        </button>
                 </xpath>
 
             </field>
